@@ -335,12 +335,7 @@
       <div class="zone z5"><span class="zname">MANAGEMENT</span><span class="zdesc">Device administration only. Fully isolated from user traffic.</span></div>
     </div>
 
-    <div class="slot">
-      <div class="icon">⌗</div>
-      <div class="label">[ TOPOLOGY DIAGRAM — to be added ]</div>
-      <div class="hint">Build this in draw.io as your own design, export as SVG/PNG,
-        and drop it in here. Shows zones, firewall boundaries, VLANs and the VPN path.</div>
-    </div>
+    <img src="topology.svg" alt="SomeTelco segmented network topology — Internet, DMZ, internal with VLANs, restricted server zone, management zone, and VPN remote access" style="width:100%; border:1px solid var(--line); border-radius:10px; background:#F5F7FA;">
     <p style="color:var(--ink-faint); font-size:14px; margin-top:14px;">
       Each boundary runs deny-by-default; only explicitly permitted traffic passes between zones.
     </p>
