@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Security Case Study — SomeTelco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Base */
+    --ink:        #0E1620;   /* primary text */
+    --ink-soft:   #3A4756;   /* secondary text */
+    --ink-faint:  #6B7888;   /* captions, labels */
+    --paper:      #F5F7FA;   /* page background */
+    --card:       #FFFFFF;   /* surfaces */
+    --line:       #DCE2EA;   /* hairlines */
+    --primary:    #1E5F8C;   /* steel blue — links, structure */
+
+    /* Trust-zone system (untrusted -> restricted). This is the signature. */
+    --z-untrust:  #C2463A;   /* internet / untrusted  */
+    --z-dmz:      #C77F1A;   /* DMZ                    */
+    --z-internal: #1E5F8C;   /* internal corporate     */
+    --z-restrict: #2E7D5B;   /* restricted server zone */
+    --z-mgmt:     #5B4B8A;   /* management             */
+
+    --tint-untrust:  #FBEFEE;
+    --tint-dmz:      #FBF3E6;
+    --tint-internal: #ECF2F7;
+    --tint-restrict: #EAF4EF;
+    --tint-mgmt:     #F0EDF6;
+
+    --maxw: 920px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 96px 0 72px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 20px;
+  }
+  .hero h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(34px, 6vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px;
+    max-width: 16ch;
+  }
+  .hero .lede {
+    font-size: clamp(18px, 2.4vw, 21px);
+    color: var(--ink-soft);
+    max-width: 56ch;
+    margin: 0 0 36px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+  .meta-row b { color: var(--ink); font-weight: 500; display: block; margin-top: 4px; font-size: 15px; }
+
+  /* ---------- Skill tags ---------- */
+  .tags { margin: 40px 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Sections ---------- */
+  section { padding: 64px 0; border-bottom: 1px solid var(--line); }
+  .sec-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--primary);
+    letter-spacing: 0.05em;
+    margin: 0 0 10px;
+  }
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: clamp(26px, 4vw, 34px);
+    letter-spacing: -0.01em;
+    margin: 0 0 28px;
+  }
+  h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    margin: 32px 0 12px;
+  }
+  p { margin: 0 0 18px; max-width: 64ch; }
+
+  /* ---------- Placeholder (YOUR content goes here) ---------- */
+  .ph {
+    border: 1.5px dashed #B9C2CE;
+    border-radius: 10px;
+    background: #FBFCFD;
+    padding: 22px 24px;
+    margin: 0 0 22px;
+    color: var(--ink-faint);
+    font-size: 15.5px;
+  }
+  .ph::before {
+    content: "✎ YOUR WORDS";
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .ph em { color: var(--ink-soft); font-style: italic; }
+
+  /* ---------- Visual slot (design later) ---------- */
+  .slot {
+    border: 1.5px dashed #B9C2CE;
+    border-radius: 10px;
+    background:
+      repeating-linear-gradient(45deg, #F7F9FB, #F7F9FB 14px, #F2F5F8 14px, #F2F5F8 28px);
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--ink-faint);
+    padding: 32px;
+    margin: 8px 0 12px;
+  }
+  .slot .icon { font-size: 30px; margin-bottom: 12px; opacity: 0.5; }
+  .slot .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--primary);
+    margin-bottom: 6px;
+  }
+  .slot .hint { font-size: 14px; max-width: 46ch; }
+
+  /* ---------- Trust-zone legend (the signature element) ---------- */
+  .zones { display: grid; gap: 0; margin: 8px 0 28px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .zone {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    align-items: center;
+    padding: 16px 20px;
+    border-left: 5px solid var(--zc, var(--line));
+    background: var(--zt, var(--card));
+  }
+  .zone + .zone { border-top: 1px solid var(--line); }
+  .zone .zname {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .zone .zdesc { font-size: 14.5px; color: var(--ink-soft); }
+  .z1 { --zc: var(--z-untrust);  --zt: var(--tint-untrust); }
+  .z2 { --zc: var(--z-dmz);      --zt: var(--tint-dmz); }
+  .z3 { --zc: var(--z-internal); --zt: var(--tint-internal); }
+  .z4 { --zc: var(--z-restrict); --zt: var(--tint-restrict); }
+  .z5 { --zc: var(--z-mgmt);     --zt: var(--tint-mgmt); }
+
+  /* ---------- Footer ---------- */
+  .note {
+    font-size: 14px;
+    color: var(--ink-faint);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-top: 8px;
+  }
+  footer { padding: 48px 0 72px; }
+  footer a { color: var(--primary); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+
+  @media (max-width: 600px) {
+    .zone { grid-template-columns: 1fr; gap: 4px; }
+    .hero { padding: 64px 0 48px; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Network Security · Case Study</p>
+    <h1>Containing a breach by design, not by luck.</h1>
+    <!-- ↑ This headline is a starting suggestion — rewrite it in your own voice if you like.
+         A results/insight-driven headline works best. -->
+    <p class="lede">
+      <!-- One or two sentences: what this case study is, in plain language.
+           Adapt from your A1 introduction — your words. -->
+      A reference architecture analysing how a flat-network breach at a fictional
+      telecommunications company could have been prevented, and the segmented,
+      defence-in-depth design that contains it.
+    </p>
+
+    <div class="meta-row">
+      <div>Scenario<b>SomeTelco Pty Ltd (fictional)</b></div>
+      <div>Focus<b>Enterprise network security</b></div>
+      <div>Discipline<b>Blue team / architecture</b></div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">Network segmentation</span>
+      <span class="tag">Defence in depth</span>
+      <span class="tag">Identity &amp; access management</span>
+      <span class="tag">Zero trust</span>
+      <span class="tag">Firewalls / IDS / IPS</span>
+      <span class="tag">Encryption</span>
+      <span class="tag">VPN</span>
+      <!-- Add or trim tags so they match what you actually demonstrate. -->
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ 01 · CHALLENGE ============ -->
+<section id="challenge">
+  <div class="wrap">
+    <p class="sec-num">01 — The Challenge</p>
+    <h2>A flat network with implicit trust</h2>
+    <div class="ph">
+      Write the breach story here, in your own words, adapted from your A1.
+      <em>Aim for 2–4 sentences:</em> what happened (unauthorised access + ransom),
+      and the root cause (flat network — once inside, the attacker could reach everything).
+      Keep it framed as the problem a reader would recognise, not a list of facts.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 · APPROACH ============ -->
+<section id="approach">
+  <div class="wrap">
+    <p class="sec-num">02 — The Approach</p>
+    <h2>Four layers of analysis</h2>
+    <div class="ph">
+      A short framing paragraph in your words: the four areas you analysed and why,
+      together, they form a defence-in-depth posture. Adapt from your A1 introduction.
+    </div>
+
+    <h3>Protocols &amp; devices</h3>
+    <div class="ph"><em>Your summary of Part 1</em> — the security role of routers, switches,
+      firewalls, and the move to secure protocols (TLS, HTTPS, SSH, DNSSEC/DoH). Keep it tight.
+    </div>
+
+    <h3>Principles &amp; tools</h3>
+    <div class="ph"><em>Your summary of Part 2</em> — defence in depth, least privilege,
+      segmentation; firewalls, IDS/IPS, encryption, SIEM, EDR.
+    </div>
+
+    <h3>Identity &amp; access management</h3>
+    <div class="ph"><em>Your summary of Part 3</em> — why identity is the new perimeter,
+      and your phased implementation plan (MFA → RBAC → SSO → PAM → access reviews).
+    </div>
+
+    <h3>Secure architecture</h3>
+    <div class="ph"><em>Your summary of Part 4</em> — segmented zones, firewall boundaries,
+      VLANs, VPN + MFA for remote access.
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 · KEY DECISIONS ============ -->
+<section id="decisions">
+  <div class="wrap">
+    <p class="sec-num">03 — Key Design Decisions</p>
+    <h2>The reasoning that matters</h2>
+    <p style="color:var(--ink-soft)">
+      This is the section a hiring manager or client reads most closely — it shows you can
+      think, not just list. Replace each placeholder with your own reasoning.
+    </p>
+    <div class="ph"><em>Decision 1</em> — e.g. why segmentation contains the blast radius.
+      Your reasoning.</div>
+    <div class="ph"><em>Decision 2</em> — e.g. why MFA was the single highest-impact control.
+      Your reasoning.</div>
+    <div class="ph"><em>Decision 3</em> — your call. Pick the decision you can defend best.</div>
+  </div>
+</section>
+
+<!-- ============ 04 · ARCHITECTURE ============ -->
+<section id="architecture">
+  <div class="wrap">
+    <p class="sec-num">04 — Architecture</p>
+    <h2>Segmented, layered, deny-by-default</h2>
+
+    <!-- The trust-zone legend renders now (it's structure, not a graphic).
+         The full topology diagram drops into the slot below when you build it. -->
+    <div class="zones" aria-label="Network trust zones from untrusted to restricted">
+      <div class="zone z1"><span class="zname">INTERNET</span><span class="zdesc">Untrusted — all inbound traffic treated as suspicious.</span></div>
+      <div class="zone z2"><span class="zname">DMZ</span><span class="zdesc">Public-facing services only. A compromise is contained here.</span></div>
+      <div class="zone z3"><span class="zname">INTERNAL</span><span class="zdesc">Staff PCs and apps. Can reach out; external cannot initiate in.</span></div>
+      <div class="zone z4"><span class="zname">RESTRICTED</span><span class="zdesc">File servers, databases, customer records. The targeted zone — isolated.</span></div>
+      <div class="zone z5"><span class="zname">MANAGEMENT</span><span class="zdesc">Device administration only. Fully isolated from user traffic.</span></div>
+    </div>
+
+    <div class="slot">
+      <div class="icon">⌗</div>
+      <div class="label">[ TOPOLOGY DIAGRAM — to be added ]</div>
+      <div class="hint">Build this in draw.io as your own design, export as SVG/PNG,
+        and drop it in here. Shows zones, firewall boundaries, VLANs and the VPN path.</div>
+    </div>
+    <p style="color:var(--ink-faint); font-size:14px; margin-top:14px;">
+      Each boundary runs deny-by-default; only explicitly permitted traffic passes between zones.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 05 · OUTCOME ============ -->
+<section id="outcome">
+  <div class="wrap">
+    <p class="sec-num">05 — Why This Design Is Better</p>
+    <h2>From implicit trust to verified access</h2>
+    <div class="ph">
+      Your closing argument, adapted from your A1 conclusion: how the segmented design
+      reduces attack surface, blocks lateral movement, secures remote access, and adds
+      visibility — replacing the single point of failure that enabled the breach.
+    </div>
+
+    <h3>Skills demonstrated</h3>
+    <ul style="color:var(--ink-soft); line-height:2;">
+      <li>Network segmentation &amp; trust-zone design</li>
+      <li>Defence in depth</li>
+      <li>Identity &amp; access management / zero-trust direction</li>
+      <li>Firewall, IDS/IPS and encryption selection</li>
+      <li>Secure remote access (VPN + MFA)</li>
+      <!-- Edit to match what you actually show. -->
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="note">
+      <strong>Note.</strong> This is an analytical case study based on a fictional company
+      (SomeTelco Pty Ltd). No real client or organisational data is used. It demonstrates
+      security design reasoning applied to a realistic breach scenario.
+    </div>
+    <p style="margin-top:28px; font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--ink-faint);">
+      Rudi · <a href="https://github.com/rudilabs">github.com/rudilabs</a>
+      <!-- Add your name / contact / LinkedIn as you like. -->
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
